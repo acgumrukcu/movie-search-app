@@ -3,8 +3,8 @@ import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Card from "react-bootstrap/Card";
-import Form from "react-bootstrap/Form";
-import Button from "react-bootstrap/Button";
+import Header from "./components/header"
+import SearchBar from "./components/searchBar";
 
 const options = {
   method: "GET",
@@ -16,19 +16,10 @@ const options = {
 
 function App() {
   const [movie, setMovie] = useState([]);
-  const [searchVal, setSearchVal] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState(null);
 
-  const handleChange = (event) => {
-    setSearchVal(event.target.value);
-  };
-
-  const handleSubmit = () => {
-    getSearch();
-  };
-
-  const getSearch = async () => {
-    const val = searchVal !== "" ? searchVal : "game";
-
+  const search = async (val) => {
     await fetch(
       "https://imdb8.p.rapidapi.com/auto-complete?q=" + val + "",
       options
@@ -39,30 +30,18 @@ function App() {
   };
 
   useEffect(() => {
-    getSearch();
+    search();
+    setLoading(false);
   }, []);
+  
 
   return (
     <div className="App">
-      <Container>
-        <Row className="mt-3 mb-2">
-          <Col xs={12}>
-            <Form onSubmit={handleChange} className="d-flex">
-              <Form.Control
-                type="search"
-                placeholder="Search"
-                className="me-2"
-                value={searchVal}
-                onChange={handleChange}
-              />
-              <Button onClick={handleSubmit} variant="outline-success">
-                Search
-              </Button>
-            </Form>
-          </Col>
-          <Col className="mt-3">Search Words: {searchVal}</Col>
-        </Row>
+      <Header/>
+      <Container> 
+        {<SearchBar search={search}/> } 
         <Row>
+          {loading && !errorMessage && <span>loading...</span>}
           {movie &&
             movie.map((val, index) => {
               return (
